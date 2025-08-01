@@ -8,7 +8,7 @@ import io.cucumber.java.en.When;
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assert;
+import org.testng.Assert;
 
 import java.util.List;
 import java.util.Map;
@@ -25,10 +25,16 @@ public class ApiTestSteps {
         this.apiClient = new RestApiClient();
     }
 
+    @Given("I want to test the JSONPlaceholder API")
+    public void i_want_to_test_the_json_placeholder_api() {
+        logger.info("Setting up JSONPlaceholder API test");
+        apiClient = new RestApiClient();
+    }
+
     @Given("I have access to the JSONPlaceholder API")
     public void i_have_access_to_the_jsonplaceholder_api() {
-        logger.info("Setting up API client for JSONPlaceholder");
-        // API client is already initialized with the base URL from config
+        logger.info("Setting up JSONPlaceholder API access");
+        apiClient = new RestApiClient();
     }
 
     @When("I send a GET request to {string}")
@@ -40,7 +46,8 @@ public class ApiTestSteps {
     @When("I send a POST request to {string} with the following data:")
     public void i_send_a_post_request_to_with_the_following_data(String endpoint, DataTable dataTable) {
         logger.info("Sending POST request to: {} with data", endpoint);
-        Map<String, String> requestData = dataTable.asMap(String.class, String.class);
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+        Map<String, String> requestData = rows.get(0); // Take first row
         apiClient.setBody(requestData);
         response = apiClient.post(endpoint);
     }
@@ -48,7 +55,8 @@ public class ApiTestSteps {
     @When("I send a PUT request to {string} with the following data:")
     public void i_send_a_put_request_to_with_the_following_data(String endpoint, DataTable dataTable) {
         logger.info("Sending PUT request to: {} with data", endpoint);
-        Map<String, String> requestData = dataTable.asMap(String.class, String.class);
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+        Map<String, String> requestData = rows.get(0); // Take first row
         apiClient.setBody(requestData);
         response = apiClient.put(endpoint);
     }
@@ -56,7 +64,8 @@ public class ApiTestSteps {
     @When("I send a PATCH request to {string} with the following data:")
     public void i_send_a_patch_request_to_with_the_following_data(String endpoint, DataTable dataTable) {
         logger.info("Sending PATCH request to: {} with data", endpoint);
-        Map<String, String> requestData = dataTable.asMap(String.class, String.class);
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+        Map<String, String> requestData = rows.get(0); // Take first row
         apiClient.setBody(requestData);
         response = apiClient.patch(endpoint);
     }
@@ -77,19 +86,24 @@ public class ApiTestSteps {
         response = apiClient.get(endpoint);
     }
 
+    @Then("the response status should be {int}")
+    public void the_response_status_should_be(int expectedStatusCode) {
+        logger.info("Verifying response status: {}", expectedStatusCode);
+        Assert.assertEquals(expectedStatusCode, response.getStatusCode(), "Response status should be " + expectedStatusCode);
+    }
+
     @Then("the response status code should be {int}")
     public void the_response_status_code_should_be(int expectedStatusCode) {
         logger.info("Verifying response status code: {}", expectedStatusCode);
-        Assert.assertEquals("Response status code should be " + expectedStatusCode,
-                           expectedStatusCode, response.getStatusCode());
+        Assert.assertEquals(expectedStatusCode, response.getStatusCode(), "Response status code should be " + expectedStatusCode);
     }
 
     @Then("the response should contain a list of posts")
     public void the_response_should_contain_a_list_of_posts() {
         logger.info("Verifying response contains a list of posts");
         List<Map<String, Object>> posts = response.jsonPath().getList("$");
-        Assert.assertNotNull("Response should contain a list", posts);
-        Assert.assertTrue("Response should contain posts", posts.size() > 0);
+        Assert.assertNotNull(posts.toString(), "Response should contain a list");
+        Assert.assertTrue(posts.size() > 0, "Response should contain posts");
     }
 
     @Then("each post should have an {string}, {string}, and {string} field")
@@ -98,9 +112,9 @@ public class ApiTestSteps {
         List<Map<String, Object>> posts = response.jsonPath().getList("$");
         
         for (Map<String, Object> post : posts) {
-            Assert.assertTrue("Post should have " + field1, post.containsKey(field1));
-            Assert.assertTrue("Post should have " + field2, post.containsKey(field2));
-            Assert.assertTrue("Post should have " + field3, post.containsKey(field3));
+            Assert.assertTrue(post.containsKey(field1), "Post should have " + field1);
+            Assert.assertTrue(post.containsKey(field2), "Post should have " + field2);
+            Assert.assertTrue(post.containsKey(field3), "Post should have " + field3);
         }
     }
 
@@ -108,42 +122,49 @@ public class ApiTestSteps {
     public void the_response_should_contain_a_single_post() {
         logger.info("Verifying response contains a single post");
         Map<String, Object> post = response.jsonPath().getMap("$");
-        Assert.assertNotNull("Response should contain a single post", post);
+        Assert.assertNotNull(post.toString(), "Response should contain a single post");
     }
 
     @Then("the post should have id {string}")
     public void the_post_should_have_id(String expectedId) {
         logger.info("Verifying post has id: {}", expectedId);
         String actualId = response.jsonPath().getString("id");
-        Assert.assertEquals("Post should have id " + expectedId, expectedId, actualId);
+        Assert.assertEquals(expectedId, actualId, "Post should have id " + expectedId);
     }
 
     @Then("the response should contain the created post")
     public void the_response_should_contain_the_created_post() {
         logger.info("Verifying response contains the created post");
         Map<String, Object> post = response.jsonPath().getMap("$");
-        Assert.assertNotNull("Response should contain the created post", post);
+        Assert.assertNotNull(post.toString(), "Response should contain the created post");
     }
 
     @Then("the post should have an {string} field")
     public void the_post_should_have_an_id_field(String fieldName) {
         logger.info("Verifying post has field: {}", fieldName);
         Object fieldValue = response.jsonPath().get(fieldName);
-        Assert.assertNotNull("Post should have " + fieldName + " field", fieldValue);
+        Assert.assertNotNull( fieldValue.toString(), "Post should have " + fieldName + " field");
     }
 
     @Then("the response should contain the updated post")
     public void the_response_should_contain_the_updated_post() {
         logger.info("Verifying response contains the updated post");
         Map<String, Object> post = response.jsonPath().getMap("$");
-        Assert.assertNotNull("Response should contain the updated post", post);
+        Assert.assertNotNull(post.toString(), "Response should contain the updated post");
     }
 
     @Then("the post title should be {string}")
     public void the_post_title_should_be(String expectedTitle) {
         logger.info("Verifying post title is: {}", expectedTitle);
         String actualTitle = response.jsonPath().getString("title");
-        Assert.assertEquals("Post title should be " + expectedTitle, expectedTitle, actualTitle);
+        logger.info("Actual title from response: {}", actualTitle);
+        
+        // Handle case where expected title might be null or empty
+        if (expectedTitle == null || expectedTitle.isEmpty()) {
+            Assert.assertNull(actualTitle, "Post title should be null");
+        } else {
+            Assert.assertEquals(expectedTitle, actualTitle, "Post title should be " + expectedTitle);
+        }
     }
 
     @Then("all posts should have userId {string}")
@@ -153,8 +174,7 @@ public class ApiTestSteps {
         
         for (Map<String, Object> post : posts) {
             String actualUserId = post.get("userId").toString();
-            Assert.assertEquals("Post should have userId " + expectedUserId, 
-                              expectedUserId, actualUserId);
+            Assert.assertEquals(expectedUserId, actualUserId, "Post should have userId " + expectedUserId);
         }
     }
 
@@ -162,8 +182,8 @@ public class ApiTestSteps {
     public void the_response_should_contain_a_list_of_comments() {
         logger.info("Verifying response contains a list of comments");
         List<Map<String, Object>> comments = response.jsonPath().getList("$");
-        Assert.assertNotNull("Response should contain a list of comments", comments);
-        Assert.assertTrue("Response should contain comments", comments.size() > 0);
+        Assert.assertNotNull( comments.toString(), "Response should contain a list of comments");
+        Assert.assertTrue(comments.size() > 0, "Response should contain comments");
     }
 
     @Then("all comments should have postId {string}")
@@ -173,8 +193,7 @@ public class ApiTestSteps {
         
         for (Map<String, Object> comment : comments) {
             String actualPostId = comment.get("postId").toString();
-            Assert.assertEquals("Comment should have postId " + expectedPostId, 
-                              expectedPostId, actualPostId);
+            Assert.assertEquals(expectedPostId, actualPostId, "Comment should have postId " + expectedPostId);
         }
     }
 
@@ -182,8 +201,8 @@ public class ApiTestSteps {
     public void the_response_should_contain_a_list_of_users() {
         logger.info("Verifying response contains a list of users");
         List<Map<String, Object>> users = response.jsonPath().getList("$");
-        Assert.assertNotNull("Response should contain a list of users", users);
-        Assert.assertTrue("Response should contain users", users.size() > 0);
+        Assert.assertNotNull( users.toString(), "Response should contain a list of users");
+        Assert.assertTrue(users.size() > 0, "Response should contain users");
     }
 
     @Then("each user should have required fields")
@@ -194,7 +213,7 @@ public class ApiTestSteps {
         
         for (Map<String, Object> user : users) {
             for (String field : requiredFields) {
-                Assert.assertTrue("User should have " + field, user.containsKey(field));
+                Assert.assertTrue(user.containsKey(field), "User should have " + field);
             }
         }
     }
@@ -203,14 +222,14 @@ public class ApiTestSteps {
     public void the_response_body_should_not_be_empty() {
         logger.info("Verifying response body is not empty");
         String responseBody = response.getBody().asString();
-        Assert.assertFalse("Response body should not be empty", responseBody.isEmpty());
+        Assert.assertFalse(responseBody.isEmpty(), "Response body should not be empty");
     }
 
     @Then("the response should contain {string}")
     public void the_response_should_contain(String expectedText) {
         logger.info("Verifying response contains: {}", expectedText);
         String responseBody = response.getBody().asString();
-        Assert.assertTrue("Response should contain " + expectedText,
-                         responseBody.contains(expectedText));
+        Assert.assertTrue(responseBody.contains(expectedText),
+                "Response should contain " + expectedText);
     }
 } 

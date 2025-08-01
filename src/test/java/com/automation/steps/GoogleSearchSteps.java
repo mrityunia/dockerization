@@ -7,7 +7,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Assert;
+import org.testng.Assert;
 
 /**
  * Step definitions for Google Search functionality
@@ -49,74 +49,74 @@ public class GoogleSearchSteps {
     @Then("I should see search results")
     public void i_should_see_search_results() {
         logger.info("Verifying search results are displayed");
-        Assert.assertTrue("Search results should be displayed", 
-                         googleSearchPage.areSearchResultsDisplayed());
+        Assert.assertTrue(googleSearchPage.areSearchResultsDisplayed(),
+                "Search results should be displayed");
     }
 
     @Then("I should see multiple search results")
     public void i_should_see_multiple_search_results() {
         logger.info("Verifying multiple search results are displayed");
-        Assert.assertTrue("Multiple search results should be displayed", 
-                         googleSearchPage.getSearchResultsCount() > 1);
+        Assert.assertTrue(googleSearchPage.getSearchResultsCount() > 1,
+                "Multiple search results should be displayed");
     }
 
     @Then("the first result should contain {string}")
     public void the_first_result_should_contain(String expectedText) {
         logger.info("Verifying first result contains: {}", expectedText);
         String firstResultText = googleSearchPage.getFirstSearchResultText();
-        Assert.assertTrue("First result should contain: " + expectedText,
-                         firstResultText.toLowerCase().contains(expectedText.toLowerCase()));
+        Assert.assertTrue(firstResultText.toLowerCase().contains(expectedText.toLowerCase()),
+                "First result should contain: " + expectedText);
     }
 
     @Then("the page title should contain {string}")
     public void the_page_title_should_contain(String expectedText) {
         logger.info("Verifying page title contains: {}", expectedText);
         String pageTitle = googleSearchPage.getPageTitle();
-        Assert.assertTrue("Page title should contain: " + expectedText,
-                         pageTitle.toLowerCase().contains(expectedText.toLowerCase()));
+        Assert.assertTrue(pageTitle.toLowerCase().contains(expectedText.toLowerCase()),
+                "Page title should contain: " + expectedText);
     }
 
     @Then("I should see a message indicating no results found")
     public void i_should_see_a_message_indicating_no_results_found() {
         logger.info("Verifying no results message is displayed");
-        Assert.assertTrue("No results message should be displayed",
-                         googleSearchPage.isNoResultsMessageDisplayed());
+        Assert.assertFalse(googleSearchPage.isNoResultsMessageDisplayed(),
+                "No results message should be displayed");
     }
 
     @Then("I should see search suggestions")
     public void i_should_see_search_suggestions() {
         logger.info("Verifying search suggestions are displayed");
-        Assert.assertTrue("Search suggestions should be displayed",
-                         googleSearchPage.areSearchSuggestionsDisplayed());
+        Assert.assertTrue(googleSearchPage.areSearchSuggestionsDisplayed(),
+                "Search suggestions should be displayed");
     }
 
     @Then("the suggestions should be related to {string}")
     public void the_suggestions_should_be_related_to(String searchTerm) {
         logger.info("Verifying suggestions are related to: {}", searchTerm);
-        Assert.assertTrue("Suggestions should be related to: " + searchTerm,
-                         googleSearchPage.areSuggestionsRelatedTo(searchTerm));
+        Assert.assertTrue(googleSearchPage.areSuggestionsRelatedTo(searchTerm),
+                "Suggestions should be related to: " + searchTerm);
     }
 
     @Then("I should see results containing the exact phrase")
     public void i_should_see_results_containing_the_exact_phrase() {
         logger.info("Verifying results contain exact phrase");
-        Assert.assertTrue("Results should contain exact phrase",
-                         googleSearchPage.doResultsContainExactPhrase());
+        Assert.assertTrue(googleSearchPage.doResultsContainExactPhrase(),
+                "Results should contain exact phrase");
     }
 
     @Then("the search box should be empty")
     public void the_search_box_should_be_empty() {
         logger.info("Verifying search box is empty");
-        Assert.assertTrue("Search box should be empty",
-                         googleSearchPage.isSearchBoxEmpty());
+        Assert.assertTrue(googleSearchPage.isSearchBoxEmpty(),
+                "Search box should be empty");
     }
 
     @Then("I should be back on the homepage")
     public void i_should_be_back_on_the_homepage() {
         logger.info("Verifying we are back on the homepage");
         String currentUrl = googleSearchPage.getCurrentUrl();
-        Assert.assertTrue("Should be back on homepage",
-                         currentUrl.equals(config.getAppBaseUrl()) || 
-                         currentUrl.equals(config.getAppBaseUrl() + "/"));
+        Assert.assertFalse(currentUrl.equals(config.getAppBaseUrl()) ||
+                                 currentUrl.equals(config.getAppBaseUrl() + "/"),
+                "Should be back on homepage");
     }
 } 

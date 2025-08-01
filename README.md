@@ -1,365 +1,436 @@
-# Automation Test Framework
+# Dockerized Automation Framework
 
-A comprehensive test automation framework built with **Selenium WebDriver**, **REST Assured**, **Cucumber BDD**, **Java**, **Log4j**, and **Maven**. This framework supports both UI and API testing with parallel execution capabilities.
+A simple and efficient test automation framework using Selenium Grid with official Docker images. This setup uses pre-built official images for maximum simplicity and minimal configuration.
 
 ## 🚀 Features
 
-- **Selenium WebDriver**: Cross-browser UI automation
-- **REST Assured**: Comprehensive API testing
-- **Cucumber BDD**: Behavior-driven development with Gherkin syntax
-- **Parallel Execution**: Support for both sequential and parallel test execution
-- **Log4j**: Comprehensive logging with multiple appenders
-- **Page Object Model**: Maintainable and scalable UI test structure
-- **Configuration Management**: Centralized configuration with properties file
-- **Screenshot Capture**: Automatic screenshot capture on test failures
-- **Test Reports**: Multiple report formats (HTML, JSON, XML)
-- **Maven Integration**: Easy dependency management and build process
+- **Simple Setup**: Uses official pre-built Docker images
+- **Selenium Grid**: Distributed testing with Chrome and Firefox nodes
+- **Multi-Browser Support**: Chrome and Firefox browsers
+- **Unified Test Runner**: Single test runner for all tests (UI + API)
+- **Parallel & Sequential Execution**: Configurable thread count for concurrent test sessions
+- **API Testing**: REST Assured integration
+- **BDD Framework**: Cucumber with Gherkin syntax
+- **Parameterized Execution**: Configurable browser, threads, and tags
+- **Unified Reporting**: Single comprehensive report for all test types
+- **Report Generation**: HTML, JSON, XML, and ExtentReports
+- **Base64 Screenshot Capture**: Optimized for database storage with reduced execution size
+- **Logging**: Comprehensive logging with Log4j2
 
 ## 📋 Prerequisites
 
-- Java 11 or higher
-- Maven 3.6 or higher
-- Chrome browser (recommended) or Safari browser (for UI tests)
+- Docker and Docker Compose
+- At least 8GB RAM (recommended for parallel execution)
+- 4 CPU cores (recommended)
 
-## 🛠️ Setup
+## 🚀 Simple Architecture
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd test-framework
-   ```
+### Official Images Used
+- **Selenium Hub**: `selenium/hub:4.15.0`
+- **Chrome Node**: `selenium/node-chrome:4.15.0`
+- **Firefox Node**: `selenium/node-firefox:4.15.0`
+- **Maven**: `maven:3.9.6-eclipse-temurin-11`
 
-2. **Install dependencies**
-   ```bash
-   mvn clean install
-   ```
-
-3. **Configure the framework**
-   - Edit `src/main/resources/config.properties` to set your application URLs and test data paths
-   - Update browser settings in the configuration file
+### Benefits
+- ✅ No custom Docker builds required
+- ✅ Uses official, maintained images
+- ✅ Minimal configuration needed
+- ✅ Fast startup and deployment
+- ✅ Reliable and stable
+- ✅ Easy to understand and maintain
 
 ## 🏗️ Project Structure
 
 ```
-src/
-├── main/
-│   ├── java/com/automation/
-│   │   ├── config/          # Configuration management
-│   │   ├── drivers/         # WebDriver management
-│   │   ├── pageobjects/     # Page Object classes
-│   │   ├── api/            # REST API client
-│   │   ├── utils/          # Utility classes
-│   │   └── testdata/       # Test data management
-│   └── resources/
-│       ├── config.properties # Framework configuration
-│       └── log4j2.xml      # Logging configuration
-└── test/
-    ├── java/com/automation/
-    │   ├── ui/             # UI test runners
-    │   ├── api/            # API test runners
-    │   ├── steps/          # Cucumber step definitions
-    │   └── hooks/          # Cucumber hooks
-    └── resources/
-        ├── features/       # Cucumber feature files
-        │   ├── ui/         # UI test features
-        │   └── api/        # API test features
-        ├── config/         # Test-specific configuration
-        └── testdata/       # Test data files
+dockerization/
+├── .dockerignore             # Docker ignore file
+├── .gitignore               # Git ignore file
+├── docker-compose.yml       # Multi-service orchestration
+├── pom.xml                  # Maven dependencies
+├── README.md               # Documentation
+└── src/
+    ├── main/java/
+    │   └── com/automation/
+    │       ├── api/         # API client classes
+    │       ├── config/      # Configuration management
+    │       ├── drivers/     # WebDriver management
+    │       ├── pageobjects/ # Page Object Model
+    │       ├── testdata/    # Test data management
+    │       └── utils/       # Utility classes
+    └── test/
+        ├── java/
+        │   └── com/automation/
+        │       ├── hooks/   # Test hooks (UI + API)
+        │       ├── steps/   # Cucumber step definitions
+        │       └── UnifiedTestRunner.java  # Single test runner for all tests
+        └── resources/
+            ├── config/      # Test configuration
+            ├── features/    # Cucumber feature files
+            │   ├── api/     # API test features
+            │   └── ui/      # UI test features
+            └── testdata/    # Test data files
 ```
 
-## 🚀 Running Tests
+## 🐳 Quick Start
 
-### All Tests (Sequential)
+### 1. Start Selenium Grid
+
 ```bash
-mvn test -Psequential
+# Start Selenium Grid with Chrome and Firefox nodes
+docker-compose up -d selenium-hub chrome firefox
+
+# Check if grid is ready
+curl http://localhost:4444/wd/hub/status
 ```
 
-### All Tests (Parallel)
+### 2. Run Unified Tests
+
 ```bash
-mvn test -Pparallel
-```
+# Run all tests (UI + API) in parallel
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub
 
-### UI Tests Only (Chrome - Default)
-```bash
-mvn test -Pui-tests
-```
+# Run all tests sequentially
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub -Dparallel.execution=none
 
-### Chrome-Specific Tests
-```bash
-mvn test -Pchrome-tests
-```
-
-### UI Tests with Safari
-```bash
-mvn test -Pui-tests -Dbrowser.name=safari
-```
-
-### Safari-Specific Tests
-```bash
-mvn test -Dtest=SafariTestRunner
-```
-
-### API Tests Only
-```bash
-mvn test -Papi-tests
-```
-
-### Specific Tags
-```bash
-# Run smoke tests
-mvn test -Dcucumber.filter.tags="@smoke"
-
-# Run UI tests with specific tag
-mvn test -Dcucumber.filter.tags="@ui and @smoke"
-
-# Run API tests with specific tag
-mvn test -Dcucumber.filter.tags="@api and @get"
-```
-
-### Custom Configuration
-```bash
-# Run with specific browser
-mvn test -Dbrowser.name=chrome
-mvn test -Dbrowser.name=safari
-
-# Run in headless mode
-mvn test -Dbrowser.headless=true
+# Run with specific tags
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub -Dcucumber.filter.tags="@smoke"
 
 # Run with custom thread count
-mvn test -Pparallel -Dparallel.thread.count=8
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub -Dparallel.thread.count=3
+
+# Run Firefox tests
+docker-compose run --rm test-runner mvn clean test -Dbrowser=firefox -DenvUrl=http://selenium-hub:4444/wd/hub
 ```
 
-## 📝 Writing Tests
+### 3. Stop Services
 
-### UI Tests
-
-1. **Create Feature File** (`src/test/resources/features/ui/example.feature`)
-```gherkin
-@ui @example
-Feature: Example UI Test
-  As a user
-  I want to perform actions on a web page
-  So that I can verify the functionality
-
-  @smoke
-  Scenario: Basic functionality test
-    Given I am on the homepage
-    When I click on the login button
-    Then I should see the login form
+```bash
+# Stop all services
+docker-compose down
 ```
 
-2. **Create Step Definitions** (`src/test/java/com/automation/steps/ExampleSteps.java`)
-```java
-package com.automation.steps;
+### 3. Run with Custom Parameters
 
-import com.automation.pageobjects.ExamplePage;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.When;
-import io.cucumber.java.en.Then;
+```bash
+# Run with custom tags and browser
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub -Dcucumber.filter.tags="@smoke"
 
-public class ExampleSteps {
-    private ExamplePage examplePage = new ExamplePage();
+# Run with custom thread count
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub -Dparallel.thread.count=4
 
-    @Given("I am on the homepage")
-    public void i_am_on_the_homepage() {
-        examplePage.navigateToHomepage();
-    }
+# Run API tests with specific tags
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub -Dcucumber.filter.tags="@api and @critical"
 
-    @When("I click on the login button")
-    public void i_click_on_the_login_button() {
-        examplePage.clickLoginButton();
-    }
-
-    @Then("I should see the login form")
-    public void i_should_see_the_login_form() {
-        Assert.assertTrue(examplePage.isLoginFormDisplayed());
-    }
-}
-```
-
-3. **Create Page Object** (`src/main/java/com/automation/pageobjects/ExamplePage.java`)
-```java
-package com.automation.pageobjects;
-
-import org.openqa.selenium.By;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.WebElement;
-
-public class ExamplePage extends BasePage {
-    
-    @FindBy(id = "login-button")
-    private WebElement loginButton;
-    
-    @FindBy(id = "login-form")
-    private WebElement loginForm;
-
-    public void navigateToHomepage() {
-        navigateTo("https://example.com");
-    }
-
-    public void clickLoginButton() {
-        click(By.id("login-button"));
-    }
-
-    public boolean isLoginFormDisplayed() {
-        return isElementDisplayed(By.id("login-form"));
-    }
-}
-```
-
-### API Tests
-
-1. **Create Feature File** (`src/test/resources/features/api/example_api.feature`)
-```gherkin
-@api @example
-Feature: Example API Test
-  As a developer
-  I want to test API endpoints
-  So that I can verify the API functionality
-
-  @smoke
-  Scenario: Get user information
-    Given I have access to the API
-    When I send a GET request to "/users/1"
-    Then the response status code should be 200
-    And the response should contain user information
-```
-
-2. **Create Step Definitions** (`src/test/java/com/automation/steps/ExampleApiSteps.java`)
-```java
-package com.automation.steps;
-
-import com.automation.api.RestApiClient;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.When;
-import io.cucumber.java.en.Then;
-import io.restassured.response.Response;
-
-public class ExampleApiSteps {
-    private RestApiClient apiClient = new RestApiClient();
-    private Response response;
-
-    @Given("I have access to the API")
-    public void i_have_access_to_the_api() {
-        // API client is already initialized
-    }
-
-    @When("I send a GET request to {string}")
-    public void i_send_a_get_request_to(String endpoint) {
-        response = apiClient.get(endpoint);
-    }
-
-    @Then("the response status code should be {int}")
-    public void the_response_status_code_should_be(int expectedStatusCode) {
-        Assert.assertEquals(expectedStatusCode, response.getStatusCode());
-    }
-
-    @Then("the response should contain user information")
-    public void the_response_should_contain_user_information() {
-        Assert.assertNotNull(response.jsonPath().get("id"));
-        Assert.assertNotNull(response.jsonPath().get("name"));
-    }
-}
+# Run sequentially with specific browser
+docker-compose run --rm test-runner mvn clean test -Dbrowser=firefox -DenvUrl=http://selenium-hub:4444/wd/hub -Dparallel.execution=none
 ```
 
 ## ⚙️ Configuration
 
-### Main Configuration (`src/main/resources/config.properties`)
-```properties
-# Application Configuration
-app.base.url=https://www.google.com
-app.timeout=30
+### Environment Variables
 
-# Browser Configuration
-browser.name=chrome
-browser.headless=false
-browser.window.size=1920x1080
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `BROWSER` | `chrome` | Browser to use (chrome, firefox) |
+| `THREADS` | `2` | Number of parallel threads |
+| `TAGS` | `@ui` | Cucumber tags to filter tests |
+| `GRID_URL` | `http://selenium-hub:4444/wd/hub` | Selenium Grid URL |
 
-# API Configuration
-api.base.url=https://jsonplaceholder.typicode.com
-api.timeout=30
+### Service Configuration
 
-# Parallel Execution Configuration
-parallel.thread.count=4
-parallel.execution.enabled=true
+#### Selenium Grid Services
+- **selenium-hub**: Port 4444, Grid hub for managing browser nodes
+- **chrome**: Chrome browser node with 4 max sessions
+- **firefox**: Firefox browser node with 4 max sessions
+- **test-runner**: Maven container for running tests
 
-# Screenshot Configuration
-screenshot.on.failure=true
-screenshot.format=png
+## 📊 Unified Reporting
+
+The framework generates a single comprehensive report for all tests (UI + API):
+
+### Report Types
+- **ExtentReports**: `target/extent-reports/extent-report.html` (Enhanced HTML report)
+- **Cucumber HTML**: `target/cucumber-reports/unified-test-report.html` (Standard Cucumber report)
+- **Cucumber JSON**: `target/cucumber-reports/unified-test-report.json` (Machine-readable format)
+
+### Report Features
+- ✅ Single report for all test types (UI + API)
+- ✅ Parallel execution tracking
+- ✅ Base64 screenshot capture for failed UI tests
+- ✅ Detailed test execution logs
+- ✅ Browser and environment information
+- ✅ Test categorization by tags
+
+## 📸 Base64 Screenshot Capture
+
+The framework captures screenshots as base64 encoded strings, optimized for database storage:
+
+### Screenshot Features
+- ✅ **Base64 Encoding**: Screenshots stored as encoded strings
+- ✅ **Database Ready**: Perfect for storing in database fields
+- ✅ **Reduced Size**: Smaller execution footprint
+- ✅ **Metadata Support**: Includes test name, step name, timestamp
+- ✅ **Compression Ready**: Framework for future compression
+- ✅ **Easy Retrieval**: Convert back to bytes when needed
+
+### Usage Examples
+```java
+// Basic base64 screenshot
+String base64Screenshot = page.takeScreenshotAsBase64();
+
+// Screenshot with metadata for database
+ScreenshotData data = page.takeScreenshotWithMetadata("testName", "stepName");
+
+// Compressed screenshot for smaller storage
+String compressedScreenshot = page.takeScreenshotAsCompressedBase64();
 ```
 
-### Logging Configuration (`src/main/resources/log4j2.xml`)
-The framework includes comprehensive logging with:
-- Console output
-- File logging
-- Rolling file logging
-- HTML report logging
+### Database Storage Benefits
+- 🗄️ **Efficient Storage**: Base64 strings in database fields
+- 📊 **Easy Querying**: Search and filter by metadata
+- 🔄 **Simple Retrieval**: Convert back to images when needed
+- 💾 **Reduced File System**: No file system dependencies
+- 🚀 **Faster Execution**: No file I/O operations
 
-## 📊 Test Reports
+## 🎯 Usage Examples
 
-After test execution, reports are generated in:
-- `target/cucumber-reports/` - Cucumber HTML reports
-- `target/surefire-reports/` - TestNG reports
-- `logs/` - Log files
-- `screenshots/` - Screenshots (on failure)
+### 1. Parallel Execution
 
-## 🔧 Maven Profiles
+```bash
+# Run all tests in parallel (default)
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub
 
-The framework includes several Maven profiles for different execution modes:
+# Run with custom thread count
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub -Dparallel.thread.count=4
+```
 
-- **sequential**: Run tests sequentially
-- **parallel**: Run tests in parallel
-- **ui-tests**: Run only UI tests
-- **api-tests**: Run only API tests
+### 2. Sequential Execution
 
-## 🐛 Troubleshooting
+```bash
+# Run all tests sequentially
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub -Dparallel.execution=none
+
+# Run Firefox tests sequentially
+docker-compose run --rm test-runner mvn clean test -Dbrowser=firefox -DenvUrl=http://selenium-hub:4444/wd/hub -Dparallel.execution=none
+```
+
+### 3. Tag-Based Testing
+
+```bash
+# Run smoke tests only
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub -Dcucumber.filter.tags="@smoke"
+
+# Run API tests only
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub -Dcucumber.filter.tags="@api"
+
+# Run UI tests only
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub -Dcucumber.filter.tags="@ui"
+```
+
+### 4. Cross-Browser Testing
+
+```bash
+# Run same tests on different browsers
+docker-compose run --rm test-runner mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub -Dcucumber.filter.tags="@ui"
+docker-compose run --rm test-runner mvn clean test -Dbrowser=firefox -DenvUrl=http://selenium-hub:4444/wd/hub -Dcucumber.filter.tags="@ui"
+```
+
+## 📊 Monitoring and Debugging
+
+### View Test Execution
+
+```bash
+# View logs for specific service
+docker-compose logs -f chrome-1
+
+# View all logs
+docker-compose logs -f
+
+# View logs for multiple services
+docker-compose logs -f chrome-1 chrome-2
+```
+
+### VNC Access
+
+Access browser sessions via VNC:
+- Chrome-1: `localhost:7901`
+- Chrome-2: `localhost:7902`
+- Chrome-3: `localhost:7903`
+- Safari: `localhost:7904`
+- API Tests: `localhost:7905`
+- Sequential: `localhost:7906`
+
+### Selenium Grid
+
+Access Selenium Grid console:
+- Grid Hub: `http://localhost:4444`
+- Grid Status: `http://localhost:4444/ui`
+
+## 📁 Output Files
+
+### Reports
+- Location: `./reports/`
+- Formats: HTML, JSON, XML
+- Generated after each test run
+
+### Screenshots
+- Location: `./screenshots/`
+- Captured on test failures
+- Organized by test name and timestamp
+
+### Logs
+- Location: `./logs/`
+- Detailed execution logs
+- Error tracking and debugging
+
+### Downloads
+- Location: `./downloads/`
+- Files downloaded during tests
+- Temporary test data
+
+## 🔧 Advanced Configuration
+
+### Custom Maven Commands
+
+```bash
+# Run with custom Maven goals
+docker-compose run --rm chrome-1 mvn clean test -Dtest=UITestRunner
+
+# Run with specific profiles
+docker-compose run --rm chrome-1 mvn clean test -P smoke
+
+# Run with custom system properties
+docker-compose run --rm chrome-1 mvn clean test -Dbrowser.headless=true
+```
+
+### Selenium Grid Integration
+
+```bash
+# Start Selenium Grid
+docker-compose up selenium-hub chrome-node-1 chrome-node-2 safari-node
+
+# Run tests against Grid
+docker-compose run --rm test-runner
+```
+
+### Custom Docker Commands
+
+```bash
+# Execute commands in running container
+docker-compose exec chrome-1 bash
+
+# Run single test in container
+docker-compose run --rm chrome-1 mvn test -Dtest=GoogleSearchTest
+
+# Debug container
+docker-compose run --rm --entrypoint bash chrome-1
+```
+
+## 🛠️ Troubleshooting
 
 ### Common Issues
 
-1. **WebDriver Issues**
-   - Ensure the correct browser is installed (Chrome or Safari)
-   - Check WebDriverManager configuration
-   - Verify browser version compatibility
-   - For Safari: Enable Safari WebDriver in Safari's Develop menu
+1. **Out of Memory**
+   ```bash
+   # Increase shared memory
+   docker-compose up --shm-size=4g chrome-1
+   ```
 
-2. **API Test Issues**
-   - Verify API endpoints are accessible
-   - Check network connectivity
-   - Validate API response format
+2. **Port Conflicts**
+   ```bash
+   # Use different ports
+   docker-compose -f docker-compose.yml -f docker-compose.override.yml up
+   ```
 
-3. **Parallel Execution Issues**
-   - Reduce thread count if tests are failing
-   - Check for resource conflicts
-   - Verify thread-safe implementation
+3. **Browser Crashes**
+   ```bash
+   # Restart specific service
+   docker-compose restart chrome-1
+   ```
 
-### Debug Mode
+4. **Test Failures**
+   ```bash
+   # Check logs
+   docker-compose logs chrome-1
+   
+   # View screenshots
+   ls -la screenshots/
+   ```
+
+### Performance Optimization
+
 ```bash
-# Run with debug logging
-mvn test -Dlogging.level=DEBUG
+# Run with resource limits
+docker-compose up --cpus=2 --memory=4g chrome-1
 
-# Run with verbose output
-mvn test -X
+# Use host networking (Linux only)
+docker-compose up --network=host chrome-1
 ```
 
-## 🤝 Contributing
+## 📈 Scaling
+
+### Horizontal Scaling
+
+```bash
+# Scale Chrome instances
+docker-compose up --scale chrome-node=5
+
+# Scale with custom configuration
+docker-compose -f docker-compose.yml -f docker-compose.scale.yml up
+```
+
+### Load Balancing
+
+```bash
+# Use Selenium Grid for load balancing
+docker-compose up selenium-hub chrome-node-1 chrome-node-2 chrome-node-3
+```
+
+## 🔒 Security
+
+### Best Practices
+
+1. **Network Isolation**
+   ```yaml
+   networks:
+     automation-network:
+       driver: bridge
+       internal: true
+   ```
+
+2. **Resource Limits**
+   ```yaml
+   deploy:
+     resources:
+       limits:
+         cpus: '2'
+         memory: 4G
+   ```
+
+3. **Non-Root User**
+   ```dockerfile
+   USER 1000:1000
+   ```
+
+## 📝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests for new functionality
+4. Add tests
 5. Submit a pull request
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 📞 Support
+## 🆘 Support
 
 For support and questions:
 - Create an issue in the repository
-- Check the documentation
-- Review the example tests
+- Check the troubleshooting section
+- Review the logs and documentation
 
 ---
 
-**Happy Testing! 🧪** 
+**Happy Testing! 🚀** 

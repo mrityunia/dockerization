@@ -5,6 +5,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Page Object for Google Search Page
@@ -21,7 +22,7 @@ public class GoogleSearchPage extends BasePage {
     @FindBy(css = "div[role='main']")
     private WebElement searchResultsContainer;
     
-    @FindBy(css = "div.g")
+    @FindBy(xpath = "//div[@Id='search']//div[@id='rso']/div")
     private List<WebElement> searchResults;
     
     @FindBy(css = "div[role='navigation']")
@@ -73,8 +74,8 @@ public class GoogleSearchPage extends BasePage {
      */
     public int getSearchResultsCount() {
         try {
-            List<WebElement> results = driver.findElements(By.cssSelector("div.g"));
-            return results.size();
+            //List<WebElement> results = searchResults;
+            return searchResults.size();
         } catch (Exception e) {
             return 0;
         }
@@ -85,7 +86,7 @@ public class GoogleSearchPage extends BasePage {
      */
     public String getFirstSearchResultText() {
         try {
-            WebElement firstResult = driver.findElement(By.cssSelector("div.g h3"));
+            WebElement firstResult = driver.findElements(By.xpath("//a[contains(@href,'https://www.selenium')]")).get(0);
             return firstResult.getText();
         } catch (Exception e) {
             return "";
@@ -193,7 +194,7 @@ public class GoogleSearchPage extends BasePage {
             List<WebElement> titles = driver.findElements(By.cssSelector("div.g h3"));
             return titles.stream()
                     .map(WebElement::getText)
-                    .toList();
+                        .collect(Collectors.toList());
         } catch (Exception e) {
             return List.of();
         }

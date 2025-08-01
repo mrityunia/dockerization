@@ -317,13 +317,6 @@ public abstract class BasePage {
     }
 
     /**
-     * Take screenshot
-     */
-    public void takeScreenshot(String name) {
-        screenshotUtils.takeScreenshot(driver, name);
-    }
-
-    /**
      * Scroll to element
      */
     public void scrollToElement(By locator) {

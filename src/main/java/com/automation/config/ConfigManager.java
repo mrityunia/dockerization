@@ -39,10 +39,20 @@ public class ConfigManager {
     }
 
     public String getProperty(String key) {
+        // Check system property first, then fall back to properties file
+        String systemProperty = System.getProperty(key);
+        if (systemProperty != null) {
+            return systemProperty;
+        }
         return properties.getProperty(key);
     }
 
     public String getProperty(String key, String defaultValue) {
+        // Check system property first, then fall back to properties file
+        String systemProperty = System.getProperty(key);
+        if (systemProperty != null) {
+            return systemProperty;
+        }
         return properties.getProperty(key, defaultValue);
     }
 

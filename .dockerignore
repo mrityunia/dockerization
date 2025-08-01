@@ -1,0 +1,65 @@
+# Git
+.git
+.gitignore
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Maven
+target/
+.mvn/
+mvnw
+mvnw.cmd
+
+# Logs
+logs/
+*.log
+
+# Reports
+reports/
+screenshots/
+downloads/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentation
+README.md
+*.md
+
+# Test artifacts
+test-output/
+test-results/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Node modules (if any)
+node_modules/
+
+# Python cache (if any)
+__pycache__/
+*.pyc
+
+# Java cache
+*.class
+*.jar
+*.war
+*.ear
+
+# Backup files
+*.bak
+*.backup 

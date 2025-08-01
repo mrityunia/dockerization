@@ -24,6 +24,8 @@
         <webdrivermanager.version>5.5.3</webdrivermanager.version>
         <jackson.version>2.15.2</jackson.version>
         <testng.version>7.7.1</testng.version>
+        <parallel.thread.count>5</parallel.thread.count>
+        <parallel.execution>methods</parallel.execution>
     </properties>
 
     <dependencies>
@@ -45,11 +47,6 @@
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
-            <version>${cucumber.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-junit</artifactId>
             <version>${cucumber.version}</version>
         </dependency>
         <dependency>
@@ -105,14 +102,6 @@
             <artifactId>testng</artifactId>
             <version>${testng.version}</version>
         </dependency>
-
-        <!-- JUnit for sequential execution -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-        </dependency>
-
         <!-- Apache Commons -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -130,6 +119,19 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>3.24.2</version>
+        </dependency>
+
+        <!-- ExtentReports for enhanced reporting -->
+        <!-- https://mvnrepository.com/artifact/com.aventstack/extentreports -->
+        <dependency>
+            <groupId>com.aventstack</groupId>
+            <artifactId>extentreports</artifactId>
+            <version>5.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>tech.grasshopper</groupId>
+            <artifactId>extentreports-cucumber7-adapter</artifactId>
+            <version>1.14.0</version>
         </dependency>
     </dependencies>
 
@@ -152,12 +154,18 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.1.2</version>
                 <configuration>
-                    <parallel>methods</parallel>
-                    <threadCount>4</threadCount>
+                    <includes>
+                        <include>**/UnifiedTestRunner.java</include>
+                    </includes>
+                    <parallel>${parallel.execution}</parallel>
+                    <threadCount>${parallel.thread.count}</threadCount>
                     <useUnlimitedThreads>false</useUnlimitedThreads>
-                    <perCoreThreadCount>true</perCoreThreadCount>
+                    <perCoreThreadCount>false</perCoreThreadCount>
                     <systemPropertyVariables>
-                        <cucumber.options>--plugin pretty --plugin html:target/cucumber-reports</cucumber.options>
+                        <extent.reporter.spark.start>true</extent.reporter.spark.start>
+                        <extent.reporter.spark.out>target/extent-reports/extent-report.html</extent.reporter.spark.out>
+                        <screenshot.dir>target/extent-reports/screenshots/</screenshot.dir>
+                        <screenshot.rel.path>../screenshots/</screenshot.rel.path>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -187,102 +195,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <!-- Sequential Execution Profile -->
-        <profile>
-            <id>sequential</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <parallel>none</parallel>
-                            <threadCount>1</threadCount>
-                            <systemPropertyVariables>
-                                <cucumber.options>--plugin pretty --plugin html:target/cucumber-reports</cucumber.options>
-                            </systemPropertyVariables>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- Parallel Execution Profile -->
-        <profile>
-            <id>parallel</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <parallel>methods</parallel>
-                            <threadCount>4</threadCount>
-                            <useUnlimitedThreads>false</useUnlimitedThreads>
-                            <perCoreThreadCount>true</perCoreThreadCount>
-                            <systemPropertyVariables>
-                                <cucumber.options>--plugin pretty --plugin html:target/cucumber-reports</cucumber.options>
-                            </systemPropertyVariables>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- UI Tests Only Profile -->
-        <profile>
-            <id>ui-tests</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <includes>
-                                <include>**/*UITestRunner.java</include>
-                            </includes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- Chrome Tests Only Profile -->
-        <profile>
-            <id>chrome-tests</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <includes>
-                                <include>**/*ChromeTestRunner.java</include>
-                            </includes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- API Tests Only Profile -->
-        <profile>
-            <id>api-tests</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <includes>
-                                <include>**/*APITestRunner.java</include>
-                            </includes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project> 
