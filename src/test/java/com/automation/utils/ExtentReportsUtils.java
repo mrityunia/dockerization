@@ -23,7 +23,7 @@ public class ExtentReportsUtils {
     private static final ScreenshotUtils screenshotUtils = new ScreenshotUtils();
     
     private static ExtentTest currentTest;
-    private static String currentScenarioName;
+
 
     static {
         // Initialize ExtentReports
@@ -42,7 +42,7 @@ public class ExtentReportsUtils {
      * Start a new test in ExtentReports
      */
     public static void startTest(String scenarioName) {
-        currentScenarioName = scenarioName;
+
         currentTest = extentReports.createTest(scenarioName);
         testMap.put(scenarioName, currentTest);
         

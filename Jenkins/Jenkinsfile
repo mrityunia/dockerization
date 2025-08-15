@@ -1,0 +1,95 @@
+pipeline {
+    agent any
+    
+    environment {
+        WORKSPACE_DIR = '/workspace'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Start Selenium Grid') {
+            steps {
+                script {
+                    // Navigate to root directory and start Selenium Grid services
+                    dir('.') {
+                        sh 'docker-compose up -d selenium-hub chrome firefox'
+                        
+                        // Wait for Selenium Grid to be ready
+                        sh 'sleep 30'
+                        
+                        // Check if Selenium Grid is running
+                        sh 'curl -f http://localhost:4444/wd/hub/status || exit 1'
+                    }
+                }
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                script {
+                    // Navigate to root directory and run tests using existing test-runner service
+                    dir('.') {
+                        sh 'docker-compose up test-runner'
+                    }
+                }
+            }
+        }
+        
+        stage('Collect Test Results') {
+            steps {
+                script {
+                    // Publish test results
+                    publishTestResults testResultsPattern: '**/target/surefire-reports/*.xml'
+                    
+                    // Publish Extent Reports if available
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'target/extent-reports',
+                        reportFiles: 'index.html',
+                        reportName: 'Extent Test Report'
+                    ])
+                }
+            }
+        }
+        
+        stage('Cleanup') {
+            steps {
+                script {
+                    // Navigate to root directory and stop all services
+                    dir('.') {
+                        sh 'docker-compose down'
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Always publish test results
+            publishTestResults testResultsPattern: '**/target/surefire-reports/*.xml'
+            
+            // Clean workspace
+            cleanWs()
+        }
+        
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        
+        failure {
+            echo 'Pipeline failed!'
+        }
+        
+        aborted {
+            echo 'Pipeline was aborted!'
+        }
+    }
+}

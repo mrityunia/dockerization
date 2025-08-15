@@ -2,13 +2,12 @@ package com.automation.hooks;
 
 import com.automation.drivers.DriverManager;
 import com.automation.utils.ExtentReportsUtils;
-import com.automation.utils.ScreenshotUtils;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.WebDriver;
+
 
 /**
  * Cucumber Hooks for WebDriver management and ExtentReports integration
@@ -16,7 +15,7 @@ import org.openqa.selenium.WebDriver;
  */
 public class Hooks {
     private static final Logger logger = LogManager.getLogger(Hooks.class);
-    private static final ScreenshotUtils screenshotUtils = new ScreenshotUtils();
+
 
     /**
      * Setup before each scenario
