@@ -1,8 +1,33 @@
 pipeline {
     agent any
     
+    parameters {
+        choice(
+            name: 'BROWSER',
+            choices: ['chrome', 'firefox'],
+            description: 'Select browser for test execution'
+        )
+        string(
+            name: 'TEST_TAGS',
+            defaultValue: '@ui',
+            description: 'Cucumber tags to filter tests (e.g., @smoke, @regression, @api)'
+        )
+        choice(
+            name: 'THREAD_COUNT',
+            choices: ['1', '2', '4', '8'],
+            description: 'Number of parallel threads for test execution'
+        )
+        choice(
+            name: 'EXECUTION_MODE',
+            choices: ['parallel', 'sequential'],
+            description: 'Test execution mode'
+        )
+    }
+    
     environment {
         WORKSPACE_DIR = '/workspace'
+        // Convert execution mode to boolean for Maven
+        PARALLEL_EXECUTION = "${params.EXECUTION_MODE == 'parallel' ? 'true' : 'false'}"
     }
     
     stages {
@@ -32,9 +57,17 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    // Navigate to root directory and run tests using existing test-runner service
+                    // Navigate to root directory and run tests with parameters
                     dir('.') {
-                        sh 'docker-compose up test-runner'
+                        // Run tests with selected parameters
+                        sh """
+                            docker-compose run --rm \
+                                -e BROWSER=${params.BROWSER} \
+                                -e TEST_TAGS='${params.TEST_TAGS}' \
+                                -e THREAD_COUNT=${params.THREAD_COUNT} \
+                                -e PARALLEL_EXECUTION=${env.PARALLEL_EXECUTION} \
+                                test-runner
+                        """
                     }
                 }
             }

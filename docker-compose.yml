@@ -44,6 +44,15 @@ services:
       - ./:/workspace
     working_dir: /workspace
     environment:
-      BROWSER: chrome
+      BROWSER: ${BROWSER}
+      TEST_TAGS: ${TEST_TAGS}
+      THREAD_COUNT: ${THREAD_COUNT}
+      PARALLEL_EXECUTION: ${PARALLEL_EXECUTION}
     entrypoint: []
-    command: sh -c "mvn clean test -Dbrowser=chrome -DenvUrl=http://selenium-hub:4444/wd/hub" 
+    command: >
+      sh -c "mvn clean test 
+      -Dbrowser=$${BROWSER} 
+      -DenvUrl=http://selenium-hub:4444/wd/hub 
+      -Dcucumber.filter.tags='$${TEST_TAGS}' 
+      -Dparallel.thread.count=$${THREAD_COUNT} 
+      -Dparallel.execution=$${PARALLEL_EXECUTION}" 
