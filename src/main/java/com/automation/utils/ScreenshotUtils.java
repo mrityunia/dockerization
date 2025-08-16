@@ -1,14 +1,11 @@
 package com.automation.utils;
 
-import com.automation.config.ConfigManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 
 /**
@@ -17,7 +14,6 @@ import java.util.Base64;
  */
 public class ScreenshotUtils {
     private static final Logger logger = LogManager.getLogger(ScreenshotUtils.class);
-    private static final ConfigManager config = ConfigManager.getInstance();
 
     /**
      * Take screenshot and return as base64 encoded string

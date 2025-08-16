@@ -43,8 +43,8 @@ pipeline {
         stage('Collect Test Results') {
             steps {
                 script {
-                    // Publish test results
-                    publishTestResults testResultsPattern: '**/target/surefire-reports/*.xml'
+                    // Publish test results using junit step
+                    junit '**/target/surefire-reports/*.xml'
                     
                     // Publish Extent Reports if available
                     publishHTML([
@@ -73,8 +73,8 @@ pipeline {
     
     post {
         always {
-            // Always publish test results
-            publishTestResults testResultsPattern: '**/target/surefire-reports/*.xml'
+            // Always publish test results using junit step
+            junit '**/target/surefire-reports/*.xml'
             
             // Clean workspace
             cleanWs()

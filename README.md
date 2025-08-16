@@ -23,6 +23,97 @@ A simple and efficient test automation framework using Selenium Grid with offici
 - At least 8GB RAM (recommended for parallel execution)
 - 4 CPU cores (recommended)
 
+## 🔧 Installation Steps
+
+### Setting up Jenkins with Git Integration
+
+This section covers how to configure Jenkins (running in Docker) to authenticate and clone code from private Git repositories.
+
+#### 1. Generate SSH Key inside Jenkins Container
+
+1. Access the Jenkins container shell:
+   ```bash
+   docker exec -it <jenkins-container-name> bash
+   ```
+
+2. Switch to the Jenkins user:
+   ```bash
+   su jenkins
+   ```
+
+3. Generate an SSH key pair:
+   ```bash
+   ssh-keygen -t rsa -b 4096 -C "jenkins@yourcompany.com"
+   ```
+   - Save at the default path: `/var/jenkins_home/.ssh/id_rsa`  
+   - Leave passphrase empty.
+
+#### 2. Add Public Key to Git Provider
+
+1. Display the public key:
+   ```bash
+   cat ~/.ssh/id_rsa.pub
+   ```
+
+2. Copy the key content and add it to your Git provider:  
+   - **GitHub**: *Settings → SSH and GPG Keys → New SSH Key*  
+   - **GitLab**: *Profile → SSH Keys*  
+   - **Bitbucket**: *Personal Settings → SSH Keys*  
+
+#### 3. Configure Known Hosts
+
+To avoid SSH host verification failures:
+
+```bash
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+```
+
+(Replace `github.com` with your Git server domain if different)
+
+#### 4. Copy Private Key from Container
+
+1. Print the private key inside the container:
+   ```bash
+   cat /var/jenkins_home/.ssh/id_rsa
+   ```
+
+2. Copy everything between:  
+   ```
+   -----BEGIN OPENSSH PRIVATE KEY-----
+   ...
+   -----END OPENSSH PRIVATE KEY-----
+   ```
+
+#### 5. Add Jenkins Credential
+
+1. Navigate to **Jenkins UI → Manage Jenkins → Credentials → System → Global credentials → Add Credentials**  
+2. Select:
+   - **Kind**: `SSH Username with private key`  
+   - **Username**: `git` (or appropriate username for your Git provider)  
+   - **Private Key**: choose **Enter directly** and paste the copied private key  
+3. Save the credential (note the `credentialsId`).
+
+#### 6. Use in Jenkins Pipeline Job
+
+Reference the credential in your `Jenkinsfile`:
+
+```groovy
+pipeline {
+    agent any
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main',
+                    url: 'git@github.com:your-org/your-repo.git',
+                    credentialsId: 'your-ssh-creds-id'
+            }
+        }
+    }
+}
+```
+
+✅ At this point, Jenkins running in Docker can successfully authenticate and clone your private Git repository.
+
 ## 🚀 Simple Architecture
 
 ### Official Images Used
