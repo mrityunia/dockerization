@@ -36,7 +36,7 @@ This section covers how to configure Jenkins (running in Docker) to authenticate
    docker exec -it <jenkins-container-name> bash
    ```
 
-2. Switch to the Jenkins user:
+2. Switch to the Jenkins user: not mandatory
    ```bash
    su jenkins
    ```
@@ -72,7 +72,7 @@ ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 #### 4. Copy Private Key from Container
 
-1. Print the private key inside the container:
+1. Print the private key inside the container: check the current ssk key file locations ls -la ~/.ssh
    ```bash
    cat /var/jenkins_home/.ssh/id_rsa
    ```
