@@ -70,6 +70,14 @@ ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 (Replace `github.com` with your Git server domain if different)
 
+Note if the Error :  bash: /home/jenkins/.ssh/known_hosts: No such file or directory or Jenkins Error this You're using 'Known hosts file' strategy to verify ssh host keys, but your known_hosts file does not exist, please go to 'Manage Jenkins' -> 'Security' -> 'Git Host Key Verification Configuration' and configure host key verification.
+
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+chmod 644 ~/.ssh/known_hosts
+
+
 #### 4. Copy Private Key from Container
 
 1. Print the private key inside the container: check the current ssk key file locations ls -la ~/.ssh
